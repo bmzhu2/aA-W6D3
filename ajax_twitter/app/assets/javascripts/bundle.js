@@ -108,6 +108,18 @@ const APIUtil = {
         method: 'DELETE',
         dataType: 'json'
       });
+    },
+
+    searchUsers: function(queryVal) {
+      return $.ajax({
+        url: '/users/search',
+        method: 'GET',
+        dataType: 'json',
+        data: {
+          query: `${queryVal}`
+        },
+        // success: `${success}`
+      });
     }
 }
 
@@ -191,13 +203,16 @@ module.exports = FollowToggle;
 /***/ (function(module, exports, __webpack_require__) {
 
 const FollowToggle = __webpack_require__(/*! ./follow_toggle.js */ "./frontend/follow_toggle.js");
-
+const UsersSearch = __webpack_require__(/*! ./users_search.js */ "./frontend/users_search.js");
 
 
 function onStartUp() {
     $(".follow-toggle").each((i, el) => {
-        new FollowToggle(el)
-    })
+        new FollowToggle(el);
+    });
+    $(".users-search").each((i, el) => {
+        new UsersSearch(el);
+    });
 }
 
 
@@ -213,6 +228,44 @@ function onStartUp() {
 
 
 $(onStartUp);
+
+/***/ }),
+
+/***/ "./frontend/users_search.js":
+/*!**********************************!*\
+  !*** ./frontend/users_search.js ***!
+  \**********************************/
+/*! no static exports found */
+/***/ (function(module, exports, __webpack_require__) {
+
+const APIUtil = __webpack_require__(/*! ./api_util.js */ "./frontend/api_util.js");
+
+class UsersSearch {
+    constructor(el) {
+        this.$el = $(el);
+        this.$input = $('.users-search input');
+        this.$ul = $('.users');
+        this.$el.on("input", "input:text", e => this.handleInput(e));
+    }
+
+    handleInput(e) {
+ 
+        APIUtil.searchUsers(this.$input[0].value, this.handleResponse)
+            .then( (result) => this.handleResponse(result))
+    }
+
+    handleResponse(result) {
+        result.forEach((user) => {
+            let $li = $('<li>');
+            $li.text(`${user.username}`);
+            // debugger;
+            let $ul = $('.users');
+            $ul.append($li);
+        });
+    }
+}
+
+module.exports = UsersSearch;
 
 /***/ })
 
